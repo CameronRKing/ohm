@@ -381,6 +381,7 @@ function makeRecipe(recipe) {
 // Stuff that users should know about
 module.exports = {
   createNamespace: Namespace.createNamespace,
+  Grammar,
   grammar,
   grammars,
   grammarFromScriptElement,
