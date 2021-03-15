@@ -16,8 +16,9 @@ const pexprs = require('./pexprs');
 
 // Constructors
 
-function GrammarDecl(name) {
+function GrammarDecl(name, starterRules={}) {
   this.name = name;
+  this.starterRules = starterRules;
 }
 
 // Helpers
@@ -99,6 +100,9 @@ GrammarDecl.prototype.withSource = function(source) {
 
 // Creates a Grammar instance, and if it passes the sanity checks, returns it.
 GrammarDecl.prototype.build = function() {
+  
+  Object.entries(this.starterRules).forEach(([key, val]) => this.rules[key] = val);
+
   const grammar = new Grammar(
       this.name,
       this.ensureSuperGrammar(),

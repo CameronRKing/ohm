@@ -61,6 +61,20 @@ pexprs.end.eval = function(state) {
   }
 };
 
+pexprs.Matcher.prototype.eval = function(state) {
+  const inputStream = state.inputStream;
+  const origPos = inputStream.pos;
+  const ch = inputStream.next();
+  
+  if (ch && this.predicate(ch)) {
+    state.pushBinding(new TerminalNode(state.grammar, ch), origPos);
+    return true;
+  } else {
+    state.processFailure(origPos, this);
+    return false;
+  }
+}
+
 pexprs.Terminal.prototype.eval = function(state) {
   const inputStream = state.inputStream;
   const origPos = inputStream.pos;

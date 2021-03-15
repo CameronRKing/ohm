@@ -69,7 +69,7 @@ function load(url) {
 // `tree`, which is the concrete syntax tree of a user-written grammar.
 // The grammar will be assigned into `namespace` under the name of the grammar
 // as specified in the source.
-function buildGrammar(match, namespace, optOhmGrammarForTesting) {
+function buildGrammar(match, namespace, optOhmGrammarForTesting, rules={}) {
   const builder = new Builder();
   let decl;
   let currentRuleName;
@@ -81,7 +81,7 @@ function buildGrammar(match, namespace, optOhmGrammarForTesting) {
   const helpers = metaGrammar.createSemantics().addOperation('visit', {
     Grammar(n, s, open, rs, close) {
       const grammarName = n.visit();
-      decl = builder.newGrammar(grammarName, namespace);
+      decl = builder.newGrammar(grammarName, rules);
       s.visit();
       rs.visit();
       const g = decl.build();
@@ -277,12 +277,12 @@ function buildGrammar(match, namespace, optOhmGrammarForTesting) {
   return helpers(match).visit();
 }
 
-function compileAndLoad(source, namespace) {
+function compileAndLoad(source, namespace, optRules) {
   const m = ohmGrammar.match(source, 'Grammars');
   if (m.failed()) {
     throw errors.grammarSyntaxError(m);
   }
-  return buildGrammar(m, namespace);
+  return buildGrammar(m, namespace, ohmGrammar, optRules);
 }
 
 // Return the contents of a script element, fetching it via XHR if necessary.
@@ -296,8 +296,8 @@ function getScriptElementContents(el) {
   return el.getAttribute('src') ? load(el.getAttribute('src')) : el.innerHTML;
 }
 
-function grammar(source, optNamespace) {
-  const ns = grammars(source, optNamespace);
+function grammar(source, optNamespace, optRules) {
+  const ns = grammars(source, optNamespace, optRules);
 
   // Ensure that the source contained no more than one grammar definition.
   const grammarNames = Object.keys(ns);
@@ -313,7 +313,7 @@ function grammar(source, optNamespace) {
   return ns[grammarNames[0]]; // Return the one and only grammar.
 }
 
-function grammars(source, optNamespace) {
+function grammars(source, optNamespace, optRules) {
   const ns = Namespace.extend(Namespace.asNamespace(optNamespace));
   if (typeof source !== 'string') {
     // For convenience, detect Node.js Buffer objects and automatically call toString().
@@ -324,7 +324,7 @@ function grammars(source, optNamespace) {
           'Expected string as first argument, got ' + common.unexpectedObjToString(source));
     }
   }
-  compileAndLoad(source, ns);
+  compileAndLoad(source, ns, optRules);
   return ns;
 }
 
@@ -373,6 +373,16 @@ function makeRecipe(recipe) {
     return (new Builder()).fromRecipe(recipe);
   }
 }
+
+// use to implement semantic predicates outside the grammar definition
+// (since semantic predicates were dropped from ometa to ohm)
+// function addBuiltInRule(name, predicate) {
+//   // this doesn't seem to be working!
+//   Grammar.BuiltInRules.rules[name] = {
+//     body: new pexprs.Matcher(predicate),
+//     formals: [],
+//   }
+// }
 
 // --------------------------------------------------------------------
 // Exports

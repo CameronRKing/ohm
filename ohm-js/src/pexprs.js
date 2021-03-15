@@ -31,11 +31,11 @@ class PExpr {
 
 // Any
 
-const any = Object.create(PExpr.prototype);
+const any = class Any extends PExpr {};
 
 // End
 
-const end = Object.create(PExpr.prototype);
+const end = class End extends PExpr {};
 
 // Terminals
 
@@ -45,6 +45,16 @@ class Terminal extends PExpr {
     this.obj = obj;
   }
 }
+
+// Generic One-Terminal Matcher
+
+class Matcher extends Terminal {
+  constructor(predicate) {
+    super(predicate);
+    this.predicate = predicate;
+  }
+}
+
 
 // Ranges
 
@@ -197,6 +207,7 @@ class UnicodeChar extends PExpr {
 exports.PExpr = PExpr;
 exports.any = any;
 exports.end = end;
+exports.Matcher = Matcher;
 exports.Terminal = Terminal;
 exports.Range = Range;
 exports.Param = Param;

@@ -17,8 +17,8 @@ Builder.prototype = {
   currentDecl: null,
   currentRuleName: null,
 
-  newGrammar(name) {
-    return new GrammarDecl(name);
+  newGrammar(name, rules) {
+    return new GrammarDecl(name, rules);
   },
 
   grammar(metaInfo, name, superGrammar, defaultStartRule, rules) {
